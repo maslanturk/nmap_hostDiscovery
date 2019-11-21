@@ -1,12 +1,13 @@
 import nmap
 import json
+import sys
 
-print("Hostname veya IP giriniz: ")
-Hostname_or_IP = str(input())
+#print("Hostname veya IP giriniz: ")
+#Hostname_or_IP = str(input())
 nm = nmap.PortScanner()
 
-nm.scan(Hostname_or_IP,arguments='-O')
-
+nm.scan(str(sys.argv[1]),arguments='-O')
+#print(str(sys.argv) )
 keys = ["Hostname","State","Os","Ports"]
 sub_keys = ["Service","State"]
 #print(nm.all_hosts()[0].hostname())
@@ -18,9 +19,14 @@ sub_keys = ["Service","State"]
 p = []
 for host in nm.all_hosts():
 
-	values = [nm[host]['hostnames'][0]['name'], nm[host]['status']['state'],
-	nm[host]['osmatch'][0]['osclass'][0]['osfamily'] ]
+	values = [nm[host]['hostnames'][0]['name'], nm[host]['status']['state']]
 
+	if nm[host]['osmatch']: 
+		if nm[host]['osmatch'][0]['osclass']:
+			if nm[host]['osmatch'][0]['osclass'][0]['osfamily']:
+				values += [nm[host]['osmatch'][0]['osclass'][0]['osfamily']]
+	else:
+		values += ["Unknown"]		
 	
 	
 	for protocol in nm[host].all_protocols():
@@ -37,6 +43,5 @@ for host in nm.all_hosts():
 
 print(json.dumps(output))	
 
-input("Kapatmak için Enter'a basın!")
 
 
